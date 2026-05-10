@@ -34,7 +34,7 @@ This system solves real-world problems: a warehouse manager can add new product 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/inventory-api.git
+git clone https://github.com/Fame-A/inventory-api.git
 cd inventory-api
 ```
 
