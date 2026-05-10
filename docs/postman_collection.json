@@ -1,0 +1,661 @@
+{
+  "info": {
+    "_postman_id": "inventory-api-cpe114",
+    "name": "Inventory API – CPE 114 Final Project",
+    "description": "Complete Postman collection for the Inventory Management REST API (Node.js + Express + Sequelize + MySQL). Organized into three resource folders: Categories, Suppliers, and Items. Covers all 17 endpoints including CRUD and many-to-many relationship endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Categories",
+      "description": "Endpoints for managing item categories. Each category can contain many items (one-to-many).",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": ["{{base_url}}"],
+              "path": ["categories"]
+            },
+            "description": "Returns an array of all categories. No relationships included in this list view."
+          },
+          "response": [
+            {
+              "name": "200 OK – All Categories",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Electronics\",\n    \"description\": \"Electronic components and gadgets\",\n    \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-01T00:00:00.000Z\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Office Supplies\",\n    \"description\": \"Pens, paper, and other office materials\",\n    \"createdAt\": \"2025-01-02T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-02T00:00:00.000Z\"\n  }\n]",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/1",
+              "host": ["{{base_url}}"],
+              "path": ["categories", "1"]
+            },
+            "description": "Returns a single category by its ID. Includes all items that belong to this category (one-to-many include). Returns 404 if the category does not exist."
+          },
+          "response": [
+            {
+              "name": "200 OK – Category with Items",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Electronics\",\n  \"description\": \"Electronic components and gadgets\",\n  \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-01T00:00:00.000Z\",\n  \"items\": [\n    {\n      \"id\": 1,\n      \"name\": \"Arduino Uno\",\n      \"sku\": \"ARD-UNO-001\",\n      \"description\": \"Microcontroller board\",\n      \"quantity\": 50,\n      \"price\": \"12.99\",\n      \"categoryId\": 1,\n      \"createdAt\": \"2025-01-05T00:00:00.000Z\",\n      \"updatedAt\": \"2025-01-05T00:00:00.000Z\"\n    }\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Category with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": ["{{base_url}}"],
+              "path": ["categories"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Electronics\",\n  \"description\": \"Electronic components and gadgets\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Creates a new category. Required field: 'name' (string, must be unique). Optional field: 'description' (text). Returns 201 on success. Returns 400 if 'name' is missing or already exists."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Electronics\",\n  \"description\": \"Electronic components and gadgets\",\n  \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-01T00:00:00.000Z\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Missing name",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"'name' is required.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Duplicate name",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"A category with that name already exists.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/categories/1",
+              "host": ["{{base_url}}"],
+              "path": ["categories", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Electronics & Gadgets\",\n  \"description\": \"Updated description for electronics\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Updates an existing category by ID. All fields (name, description) are optional — only provided fields are updated. Returns 404 if the category does not exist. Returns 400 if the new name conflicts with an existing category."
+          },
+          "response": [
+            {
+              "name": "200 OK – Updated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Electronics & Gadgets\",\n  \"description\": \"Updated description for electronics\",\n  \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-10T00:00:00.000Z\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Category with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/1",
+              "host": ["{{base_url}}"],
+              "path": ["categories", "1"]
+            },
+            "description": "Deletes a category by ID. Returns 404 if the category does not exist. Note: will fail with a 500 if items are still assigned to this category due to the foreign key constraint."
+          },
+          "response": [
+            {
+              "name": "200 OK – Deleted",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Category 'Electronics' deleted successfully.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Category with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Suppliers",
+      "description": "Endpoints for managing suppliers. Suppliers are linked to items through the many-to-many junction table (item_suppliers).",
+      "item": [
+        {
+          "name": "Get All Suppliers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/suppliers",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers"]
+            },
+            "description": "Returns an array of all suppliers. Does not include associated items in the list view."
+          },
+          "response": [
+            {
+              "name": "200 OK – All Suppliers",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"TechParts Co.\",\n    \"contactEmail\": \"contact@techparts.com\",\n    \"phone\": \"+1-555-1234\",\n    \"address\": \"123 Supply Ave, Manila, PH\",\n    \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-01T00:00:00.000Z\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Global Supply PH\",\n    \"contactEmail\": \"orders@globalsupply.ph\",\n    \"phone\": \"+63-912-5678\",\n    \"address\": \"456 Warehouse Rd, Laoag, Ilocos Norte\",\n    \"createdAt\": \"2025-01-03T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-03T00:00:00.000Z\"\n  }\n]",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Get Supplier by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/suppliers/1",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers", "1"]
+            },
+            "description": "Returns a single supplier by ID. Includes all items this supplier is linked to via the item_suppliers junction table (many-to-many). Returns 404 if the supplier does not exist."
+          },
+          "response": [
+            {
+              "name": "200 OK – Supplier with Items",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"TechParts Co.\",\n  \"contactEmail\": \"contact@techparts.com\",\n  \"phone\": \"+1-555-1234\",\n  \"address\": \"123 Supply Ave, Manila, PH\",\n  \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-01T00:00:00.000Z\",\n  \"items\": [\n    {\n      \"id\": 1,\n      \"name\": \"Arduino Uno\",\n      \"sku\": \"ARD-UNO-001\",\n      \"quantity\": 50,\n      \"price\": \"12.99\",\n      \"categoryId\": 1,\n      \"createdAt\": \"2025-01-05T00:00:00.000Z\",\n      \"updatedAt\": \"2025-01-05T00:00:00.000Z\",\n      \"ItemSupplier\": {\n        \"unitCost\": \"8.50\"\n      }\n    }\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Supplier with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Create Supplier",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/suppliers",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TechParts Co.\",\n  \"contactEmail\": \"contact@techparts.com\",\n  \"phone\": \"+1-555-1234\",\n  \"address\": \"123 Supply Ave, Manila, PH\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Creates a new supplier. Required fields: 'name' (string) and 'contactEmail' (valid email format, must be unique). Optional fields: 'phone' (string), 'address' (text). Returns 201 on success. Returns 400 if required fields are missing, email format is invalid, or email already exists."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"TechParts Co.\",\n  \"contactEmail\": \"contact@techparts.com\",\n  \"phone\": \"+1-555-1234\",\n  \"address\": \"123 Supply Ave, Manila, PH\",\n  \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-01T00:00:00.000Z\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Missing Required Fields",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"'name' and 'contactEmail' are required.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Duplicate Email",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"A supplier with that email already exists.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Invalid Email Format",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"Validation isEmail on contactEmail failed\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Update Supplier",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/suppliers/1",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TechParts Co. Updated\",\n  \"contactEmail\": \"new@techparts.com\",\n  \"phone\": \"+1-555-9999\",\n  \"address\": \"789 New Ave, Cebu, PH\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Updates an existing supplier by ID. All fields (name, contactEmail, phone, address) are optional — only provided fields are changed. Returns 404 if the supplier does not exist. Returns 400 if the new email is already taken or has an invalid format."
+          },
+          "response": [
+            {
+              "name": "200 OK – Updated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"TechParts Co. Updated\",\n  \"contactEmail\": \"new@techparts.com\",\n  \"phone\": \"+1-555-9999\",\n  \"address\": \"789 New Ave, Cebu, PH\",\n  \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-10T00:00:00.000Z\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Supplier with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Delete Supplier",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/suppliers/1",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers", "1"]
+            },
+            "description": "Deletes a supplier by ID. Returns 404 if the supplier does not exist. Junction table rows in item_suppliers are automatically removed."
+          },
+          "response": [
+            {
+              "name": "200 OK – Deleted",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Supplier 'TechParts Co.' deleted successfully.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Supplier with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Items",
+      "description": "Endpoints for managing inventory items. Items belong to one Category (one-to-many) and can be linked to many Suppliers through the item_suppliers junction table (many-to-many).",
+      "item": [
+        {
+          "name": "Get All Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/items",
+              "host": ["{{base_url}}"],
+              "path": ["items"]
+            },
+            "description": "Returns an array of all inventory items. Each item includes its associated category object (one-to-many include). Suppliers are not included in the list view — use GET /items/:id for the full detail view."
+          },
+          "response": [
+            {
+              "name": "200 OK – All Items with Category",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Arduino Uno\",\n    \"sku\": \"ARD-UNO-001\",\n    \"description\": \"Microcontroller board\",\n    \"quantity\": 50,\n    \"price\": \"12.99\",\n    \"categoryId\": 1,\n    \"createdAt\": \"2025-01-05T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-05T00:00:00.000Z\",\n    \"category\": {\n      \"id\": 1,\n      \"name\": \"Electronics\",\n      \"description\": \"Electronic components and gadgets\",\n      \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2025-01-01T00:00:00.000Z\"\n    }\n  }\n]",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Get Item by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/items/1",
+              "host": ["{{base_url}}"],
+              "path": ["items", "1"]
+            },
+            "description": "Returns a single item by ID. Includes the associated category (one-to-many) and all linked suppliers with their unitCost from the item_suppliers junction table (many-to-many). Returns 404 if the item does not exist."
+          },
+          "response": [
+            {
+              "name": "200 OK – Item with Category and Suppliers",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Arduino Uno\",\n  \"sku\": \"ARD-UNO-001\",\n  \"description\": \"Microcontroller board\",\n  \"quantity\": 50,\n  \"price\": \"12.99\",\n  \"categoryId\": 1,\n  \"createdAt\": \"2025-01-05T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-05T00:00:00.000Z\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Electronics\",\n    \"description\": \"Electronic components and gadgets\",\n    \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-01T00:00:00.000Z\"\n  },\n  \"suppliers\": [\n    {\n      \"id\": 1,\n      \"name\": \"TechParts Co.\",\n      \"contactEmail\": \"contact@techparts.com\",\n      \"phone\": \"+1-555-1234\",\n      \"address\": \"123 Supply Ave, Manila, PH\",\n      \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2025-01-01T00:00:00.000Z\",\n      \"ItemSupplier\": {\n        \"unitCost\": \"8.50\"\n      }\n    }\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Item with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Create Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/items",
+              "host": ["{{base_url}}"],
+              "path": ["items"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arduino Uno\",\n  \"sku\": \"ARD-UNO-001\",\n  \"description\": \"Microcontroller board\",\n  \"quantity\": 50,\n  \"price\": 12.99,\n  \"categoryId\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Creates a new inventory item. Required fields: 'name' (string), 'sku' (string, must be unique), 'price' (decimal >= 0), 'categoryId' (integer, must refer to an existing category). Optional fields: 'description' (text), 'quantity' (integer >= 0, defaults to 0). Returns 201 with the created item and its category. Returns 400 if required fields are missing, SKU is duplicate, or categoryId does not exist."
+          },
+          "response": [
+            {
+              "name": "201 Created – Item with Category",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Arduino Uno\",\n  \"sku\": \"ARD-UNO-001\",\n  \"description\": \"Microcontroller board\",\n  \"quantity\": 50,\n  \"price\": \"12.99\",\n  \"categoryId\": 1,\n  \"createdAt\": \"2025-01-05T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-05T00:00:00.000Z\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Electronics\",\n    \"description\": \"Electronic components and gadgets\",\n    \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-01T00:00:00.000Z\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Missing Required Fields",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"'name', 'sku', 'price', and 'categoryId' are required.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Duplicate SKU",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"An item with that SKU already exists.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Category Not Found",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"Category with id 99 does not exist.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/items/1",
+              "host": ["{{base_url}}"],
+              "path": ["items", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arduino Uno R3\",\n  \"quantity\": 75,\n  \"price\": 14.50\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Updates an existing item by ID. All fields (name, sku, description, quantity, price, categoryId) are optional — only provided fields are changed. If categoryId is provided, it must point to an existing category. Returns 200 with the updated item and category. Returns 404 if the item is not found. Returns 400 for duplicate SKU or invalid categoryId."
+          },
+          "response": [
+            {
+              "name": "200 OK – Updated Item with Category",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Arduino Uno R3\",\n  \"sku\": \"ARD-UNO-001\",\n  \"description\": \"Microcontroller board\",\n  \"quantity\": 75,\n  \"price\": \"14.50\",\n  \"categoryId\": 1,\n  \"createdAt\": \"2025-01-05T00:00:00.000Z\",\n  \"updatedAt\": \"2025-01-10T00:00:00.000Z\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Electronics\",\n    \"description\": \"Electronic components and gadgets\",\n    \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-01T00:00:00.000Z\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Item with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Duplicate SKU",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"An item with that SKU already exists.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/items/1",
+              "host": ["{{base_url}}"],
+              "path": ["items", "1"]
+            },
+            "description": "Deletes an item by ID. Also removes all related rows in the item_suppliers junction table. Returns 404 if the item does not exist."
+          },
+          "response": [
+            {
+              "name": "200 OK – Deleted",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Item 'Arduino Uno' deleted successfully.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Item with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Assign Supplier to Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/items/1/suppliers",
+              "host": ["{{base_url}}"],
+              "path": ["items", "1", "suppliers"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierId\": 1,\n  \"unitCost\": 8.50\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Links a supplier to an item by creating a row in the item_suppliers junction table. Required field: 'supplierId' (integer, must refer to an existing supplier). Optional field: 'unitCost' (decimal) — the cost at which this supplier provides the item. If the link already exists, it updates the unitCost instead. Returns 201 if newly created, 200 if the link already existed and was updated. Returns 400 if supplierId is missing. Returns 404 if either the item or the supplier does not exist."
+          },
+          "response": [
+            {
+              "name": "201 Created – Supplier Assigned",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Supplier assigned.\",\n  \"item\": {\n    \"id\": 1,\n    \"name\": \"Arduino Uno\",\n    \"sku\": \"ARD-UNO-001\",\n    \"description\": \"Microcontroller board\",\n    \"quantity\": 50,\n    \"price\": \"12.99\",\n    \"categoryId\": 1,\n    \"createdAt\": \"2025-01-05T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-05T00:00:00.000Z\",\n    \"suppliers\": [\n      {\n        \"id\": 1,\n        \"name\": \"TechParts Co.\",\n        \"contactEmail\": \"contact@techparts.com\",\n        \"phone\": \"+1-555-1234\",\n        \"address\": \"123 Supply Ave, Manila, PH\",\n        \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n        \"updatedAt\": \"2025-01-01T00:00:00.000Z\",\n        \"ItemSupplier\": {\n          \"unitCost\": \"8.50\"\n        }\n      }\n    ]\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "200 OK – Supplier Link Updated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Supplier link updated.\",\n  \"item\": {\n    \"id\": 1,\n    \"name\": \"Arduino Uno\",\n    \"sku\": \"ARD-UNO-001\",\n    \"description\": \"Microcontroller board\",\n    \"quantity\": 50,\n    \"price\": \"12.99\",\n    \"categoryId\": 1,\n    \"createdAt\": \"2025-01-05T00:00:00.000Z\",\n    \"updatedAt\": \"2025-01-05T00:00:00.000Z\",\n    \"suppliers\": [\n      {\n        \"id\": 1,\n        \"name\": \"TechParts Co.\",\n        \"contactEmail\": \"contact@techparts.com\",\n        \"phone\": \"+1-555-1234\",\n        \"address\": \"123 Supply Ave, Manila, PH\",\n        \"createdAt\": \"2025-01-01T00:00:00.000Z\",\n        \"updatedAt\": \"2025-01-01T00:00:00.000Z\",\n        \"ItemSupplier\": {\n          \"unitCost\": \"9.00\"\n        }\n      }\n    ]\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Missing supplierId",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Validation Error\",\n  \"message\": \"'supplierId' is required.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Item Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Item with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Supplier Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Supplier with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Remove Supplier from Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/items/1/suppliers/1",
+              "host": ["{{base_url}}"],
+              "path": ["items", "1", "suppliers", "1"]
+            },
+            "description": "Removes the link between an item and a supplier by deleting the row from the item_suppliers junction table. The item and supplier records themselves are NOT deleted. Returns 404 if the item does not exist, if the supplier does not exist, or if no link exists between them."
+          },
+          "response": [
+            {
+              "name": "200 OK – Supplier Removed",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Supplier 'TechParts Co.' removed from item 'Arduino Uno'.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Item Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Item with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Supplier Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Supplier with id 99 not found.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Link Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"This supplier is not linked to the item.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
